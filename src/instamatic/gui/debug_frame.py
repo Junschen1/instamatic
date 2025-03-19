@@ -16,6 +16,8 @@ PORT = config.settings.indexing_server_port
 BUFSIZE = 1024
 
 VM_SERVER_EXE = config.settings.VM_server_exe
+Win_SERVER_EXE_auto = config.settings.Win_server_exe_auto
+Win_SERVER_EXE_manual = config.settings.Win_server_exe_manual
 VMHOST = config.settings.VM_server_host
 VMPORT = config.settings.VM_server_port
 
@@ -73,35 +75,57 @@ class DebugFrame(LabelFrame):
         self.RunButton = Button(frame, text='Kill', command=self.kill_server_xdsVM)
         self.RunButton.grid(row=3, column=4, sticky='EW')
 
+        Label(frame, text='Indexing server: XDS (Ubuntu in Windows)').grid(row=4, column=0, sticky='W')
+
+        self.BrowseButton = Button(frame, text='Start', command=self.start_server_xdsWin_auto)
+        self.BrowseButton.grid(row=4, column=2, sticky='EW')
+
+        self.RunButton = Button(frame, text='Register', command=self.register_server_xdsWin_auto)
+        self.RunButton.grid(row=4, column=3, sticky='EW')
+
+        self.RunButton = Button(frame, text='Kill', command=self.kill_server_xdsWin_auto)
+        self.RunButton.grid(row=4, column=4, sticky='EW')
+
+        '''Label(frame, text='Indexing server: XDS (Ubuntu in Windows(manual))').grid(row=5, column=0, sticky='W')
+
+        self.BrowseButton = Button(frame, text='Start', command=self.start_server_xdsWin_manual)
+        self.BrowseButton.grid(row=5, column=2, sticky='EW')
+
+        self.RunButton = Button(frame, text='Register', command=self.register_server_xdsWin_manual)
+        self.RunButton.grid(row=5, column=3, sticky='EW')
+
+        self.RunButton = Button(frame, text='Kill', command=self.kill_server_xdsWin_manual)
+        self.RunButton.grid(row=5, column=4, sticky='EW')'''
+
         self.use_shelxt_check = Checkbutton(frame, text='Use SHELXT for online structure solution', variable=self.var_use_shelxt, command=self.toggle_use_shelxt)
-        self.use_shelxt_check.grid(row=4, column=0, sticky='W')
+        self.use_shelxt_check.grid(row=6, column=0, sticky='W')
 
-        Label(frame, text='Space group: ').grid(row=4, column=2, sticky='EW')
+        Label(frame, text='Space group: ').grid(row=6, column=2, sticky='EW')
         self.e_sg = Entry(frame, textvariable=self.var_e_sg, width=15, state=NORMAL)
-        self.e_sg.grid(row=4, column=3, sticky='EW', columnspan=2)
+        self.e_sg.grid(row=6, column=3, sticky='EW', columnspan=2)
 
-        Label(frame, text='Unit cell: ').grid(row=5, column=2, sticky='EW')
+        Label(frame, text='Unit cell: ').grid(row=7, column=2, sticky='EW')
         self.e_uc = Entry(frame, textvariable=self.var_e_uc, width=15, state=NORMAL)
-        self.e_uc.grid(row=5, column=3, sticky='EW', columnspan=2)
+        self.e_uc.grid(row=7, column=3, sticky='EW', columnspan=2)
 
-        Label(frame, text='Composition: ').grid(row=6, column=2, sticky='EW')
+        Label(frame, text='Composition: ').grid(row=8, column=2, sticky='EW')
         self.e_compo = Entry(frame, textvariable=self.var_e_compo, width=15, state=NORMAL)
-        self.e_compo.grid(row=6, column=3, sticky='EW', columnspan=2)
+        self.e_compo.grid(row=8, column=3, sticky='EW', columnspan=2)
 
         self.use_sendto_AS_check = Checkbutton(frame, text='Send SMV path to autosolution server: ', variable=self.var_send_data_to_AS, command=self.toggle_use_AS)
-        self.use_sendto_AS_check.grid(row=7, column=0, sticky='W')
+        self.use_sendto_AS_check.grid(row=9, column=0, sticky='W')
 
-        Label(frame, text='SMV files path: ').grid(row=8, column=0, sticky='EW')
+        Label(frame, text='SMV files path: ').grid(row=10, column=0, sticky='EW')
         self.e_smvpath = Entry(frame, textvariable=self.var_e_smvpath, width=50, state=DISABLED)
-        self.e_smvpath.grid(row=8, column=0, sticky='EW', columnspan=4)
+        self.e_smvpath.grid(row=10, column=0, sticky='EW', columnspan=4)
 
         self.SendButton = Button(frame, text='Send', command=self.send_path_to_autosolution)
-        self.SendButton.grid(row=8, column=4, sticky='EW')
+        self.SendButton.grid(row=10, column=4, sticky='EW')
 
         frame.columnconfigure(0, weight=1)
         frame.pack(side='top', fill='x', padx=10, pady=10)
 
-        Separator(frame, orient=HORIZONTAL).grid(row=9, columnspan=8, sticky='ew', pady=10)
+        Separator(frame, orient=HORIZONTAL).grid(row=11, columnspan=8, sticky='ew', pady=10)
 
         frame = Frame(self)
 
@@ -189,13 +213,61 @@ class DebugFrame(LabelFrame):
         self.triggerEvent.set()
 
     def register_server_xdsVM(self):
-        self.q.put(('autoindex_xdsVM', {'task': 'register_server_xdsVM'}))
+        self.q.put(('autoindex_xdsVM_auto', {'task': 'register_server_xdsVM'}))
+        self.triggerEvent.set()
+
+    def kill_server_xdsWin_auto(self):
+        self.q.put(('autoindex_xdsWin_auto', {'task': 'kill_server_xdsWin_auto'}))
+        self.triggerEvent.set()
+
+    def start_server_xdsWin_auto(self):
+        compos = self.var_e_compo.get()
+        unitcell = self.var_e_uc.get()
+        spgr = self.var_e_sg.get()
+        use_shelxt = self.var_use_shelxt.get()
+
+        print(f'Use ShelXT: {use_shelxt}; Space group: {spgr}')
+
+        self.q.put(('autoindex_xdsWin_auto', {'task': 'start_server_xdsWin_auto',
+                                        'compos': compos,
+                                        'unitcell': unitcell,
+                                        'spgr': spgr,
+                                        'use_shelxt': use_shelxt}))
+        self.triggerEvent.set()
+
+    def register_server_xdsWin_auto(self):
+        self.q.put(('autoindex_xdsWin_auto', {'task': 'register_server_xdsWin_auto'}))
+        self.triggerEvent.set()
+
+    def kill_server_xdsWin_manual(self):
+        self.q.put(('autoindex_xdsWin_manual', {'task': 'kill_server_xdsWin_manual'}))
+        self.triggerEvent.set()
+
+    def start_server_xdsWin_manual(self):
+        compos = self.var_e_compo.get()
+        unitcell = self.var_e_uc.get()
+        spgr = self.var_e_sg.get()
+        use_shelxt = self.var_use_shelxt.get()
+
+        print(f'Use ShelXT: {use_shelxt}; Space group: {spgr}')
+
+        self.q.put(('autoindex_xdsWin_manual', {'task': 'start_server_xdsWin_manual',
+                                        'compos': compos,
+                                        'unitcell': unitcell,
+                                        'spgr': spgr,
+                                        'use_shelxt': use_shelxt}))
+        self.triggerEvent.set()
+
+    def register_server_xdsWin_manual(self):
+        self.q.put(('autoindex_xdsWin_manual', {'task': 'register_server_xdsWin_manual'}))
         self.triggerEvent.set()
 
     def send_path_to_autosolution(self):
         path = self.var_e_smvpath.get()
-
-        self.q.put(('autosolution_path', {'path': path}))
+        compos = self.var_e_compo.get()
+        unitcell = self.var_e_uc.get()
+        spgr = self.var_e_sg.get()
+        self.q.put(('autosolution_path', {'path': path,'compos':compos,'unitcell': unitcell,'spgr':spgr}))
         self.triggerEvent.set()
 
     def scripts_combobox_update(self, event=None):
@@ -338,8 +410,8 @@ def autoindex_xdsVM(controller, **kwargs):
 
         cmd = f'start {VM_SERVER_EXE}'
         if use_shelxt:
+            cmd += ' -shelxt -m '
             if compos:
-                cmd += ' -shelxt -m '
                 cmd += compos
 
                 if unitcell:
@@ -381,13 +453,125 @@ def autoindex_xdsVM(controller, **kwargs):
         del controller.indexing_server_process
 
 
+def autoindex_xdsWin_auto(controller, **kwargs):
+    task = kwargs.get('task')
+    if task == 'start_server_xdsWin_auto':
+        import subprocess as sp
+
+        compos = kwargs.get('compos')
+        unitcell = kwargs.get('unitcell')
+        spgr = kwargs.get('spgr')
+        use_shelxt = kwargs.get('use_shelxt')
+
+        cmd = f'start {Win_SERVER_EXE_auto}'
+        if use_shelxt:
+            cmd += ' -shelxt '
+            if compos:
+                cmd +=' -m ' 
+                cmd += compos
+
+                if unitcell:
+                    cmd += ' -c '
+                    cmd += unitcell
+
+                if spgr:
+                    cmd += ' -s '
+                    cmd += spgr
+            else:
+                print('No composition information provided. SHELXT cannot run.')
+
+        controller.indexing_server_process = sp.call(cmd, shell=True)
+        print(f'Indexing server `{Win_SERVER_EXE_auto}` starting on {VMHOST}:{VMPORT}')
+        # controller.use_indexing_server_xds = True
+        print('VM XDS Indexing server registered. Please wait for around 2 min before XDS server is ready.')
+        print('Please refer to the server console for the current status of the server.')
+        return
+
+    elif task == 'register_server_xdsWin_auto':
+        # controller.use_indexing_server_xds = True
+        print('VM XDS Indexing server registered')
+        return
+
+    elif task == 'run':
+        payload = bytes(kwargs.get('path'))
+
+    elif task == 'kill_server_xdsWin_auto':
+        payload = b'kill'
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        print('Sending job to server...', end=' ')
+        s.connect((VMHOST, VMPORT))
+        s.send(payload)
+        data = s.recv(BUFSIZE).decode()
+        print(data)
+
+    if task == 'kill':
+        del controller.indexing_server_process
+
+def autoindex_xdsWin_manual(controller, **kwargs):
+    task = kwargs.get('task')
+    if task == 'start_server_xdsWin_manual':
+        import subprocess as sp
+
+        compos = kwargs.get('compos')
+        unitcell = kwargs.get('unitcell')
+        spgr = kwargs.get('spgr')
+        use_shelxt = kwargs.get('use_shelxt')
+
+        cmd = f'start {Win_SERVER_EXE_manual}'
+        if use_shelxt:
+            if compos:
+                cmd += ' -shelxt -m '
+                cmd += compos
+
+                if unitcell:
+                    cmd += ' -c '
+                    cmd += unitcell
+
+                if spgr:
+                    cmd += ' -s '
+                    cmd += spgr
+            else:
+                print('No composition information provided. SHELXT cannot run.')
+
+        controller.indexing_server_process = sp.call(cmd, shell=True)
+        print(f'Indexing server `{Win_SERVER_EXE_manual}` starting on {VMHOST}:{VMPORT}')
+        # controller.use_indexing_server_xds = True
+        print('VM XDS Indexing server registered. Please wait for around 2 min before XDS server is ready.')
+        print('Please refer to the server console for the current status of the server.')
+        return
+
+    elif task == 'register_server_xdsWin_manual':
+        # controller.use_indexing_server_xds = True
+        print('VM XDS Indexing server registered')
+        return
+
+    elif task == 'run':
+        payload = bytes(kwargs.get('path'))
+
+    elif task == 'kill_server_xdsWin_manual':
+        payload = b'kill'
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        print('Sending job to server...', end=' ')
+        s.connect((VMHOST, VMPORT))
+        s.send(payload)
+        data = s.recv(BUFSIZE).decode()
+        print(data)
+
+    if task == 'kill':
+        del controller.indexing_server_process
+
 def autosolution_path(controller, **kwargs):
     import json
-
     path = kwargs.get('path')
-
-    params = {'path': path}
+    # 增加了shelxt等参数的传递
+    compos = kwargs.get('compos')
+    unitcell = kwargs.get('unitcell')
+    spgr = kwargs.get('spgr')
+    params = {'path': path, 'compos': compos, 'unitcell': unitcell, 'spgr': spgr}
     payload = json.dumps(params).encode('utf8')
+        
 
     # Send to server
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -405,6 +589,8 @@ commands = {
     'debug': debug,
     'autoindex': autoindex,
     'autoindex_xdsVM': autoindex_xdsVM,
+    'autoindex_xdsWin_auto': autoindex_xdsWin_auto,
+    'autoindex_xdsWin_manual': autoindex_xdsWin_manual,
     'autosolution_path': autosolution_path,
 }
 
