@@ -55,7 +55,9 @@ Check [pypoject.toml](pypoject.toml) for the full dependency list and versions.
 ## Documentation
 
 See [the documentation](https://instamatic.readthedocs.io) for how to set up and use Instamatic.
+## Win_server update
 
+To use the indexing server: XDS (Ubuntu in Windows), please use pyinstaller to convert the win_ubuntu_server.py in **`src/instamatic/server/** into .exe file. Then place the file in the same directory as instamatic.exe. Finally change the name after Win_derver.exe in the settings.yaml to the name of the exe file you generated.
 ## Reference
 
 If you found `Instamatic` useful, please consider citing it or one of the references below.
