@@ -56,8 +56,8 @@ Check [pypoject.toml](pypoject.toml) for the full dependency list and versions.
 
 See [the documentation](https://instamatic.readthedocs.io) for how to set up and use Instamatic.
 ## Win_server update
-
-To use the indexing server: XDS (Ubuntu in Windows), please download the exe file from [10.5281/zenodo.15549223](https://doi.org/10.5281/zenodo.15549223). Then place the file in the same directory as instamatic.exe. (e.g. D:\anaconda\Scripts). Finally, change the name of the configuration item following "Win_server.exe" in the settings.yaml file (maybe in C:\Users\****\AppData\Roaming\instamatic\config) to the name of the exe file.
+To use the indexing server: XDS (Ubuntu in Windows), please download the exe file from [10.5281/zenodo.15549223](https://doi.org/10.5281/zenodo.15549223). Then place the file in the same directory as instamatic.exe. For example, if instamatic.exe is located in D:\anaconda\Scripts, put the newly downloaded exe file in the same D:\anaconda\Scripts directory.​
+Next, you need to modify the configuration item in the settings.yaml file. This file is usually located in C:\Users****\AppData\Roaming\instamatic\config. However, if you can't find the file address, you can open instamatic and look for the config directory information that pops up. The path shown there will lead you to the location of the settings.yaml file. Once you've located the file, change the name of the configuration item following "Win_server.exe" in the settings.yaml file to the name of the exe file you downloaded.
 ## Reference
 
 If you found `Instamatic` useful, please consider citing it or one of the references below.
