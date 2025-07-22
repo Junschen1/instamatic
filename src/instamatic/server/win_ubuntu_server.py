@@ -69,7 +69,7 @@ def win_ubuntu_start_xds_AtFolder(conn, shelxt, unitcell, spgr, composition):
             if shelxt:
                 try:
                     p = subprocess.Popen('bash', stdin=subprocess.PIPE,
-                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     p.stdin.write(f"cd {path_win}\n".encode())
                     p.stdin.write(b"xds\n")
                     p.communicate()
@@ -78,7 +78,7 @@ def win_ubuntu_start_xds_AtFolder(conn, shelxt, unitcell, spgr, composition):
                     generate_xdsconv_input(path)
                     if Con_flag:
                         p2 = subprocess.Popen('bash', stdin=subprocess.PIPE,
-                                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                         p2.stdin.write(f"cd {path_win}\n".encode())
                         p2.stdin.write(b"xdsconv\n")
                         p2.communicate()
@@ -89,7 +89,7 @@ def win_ubuntu_start_xds_AtFolder(conn, shelxt, unitcell, spgr, composition):
                         solve_structure_shelxt(path)
                     else:
                         print("Interrupted, waiting for input")
-
+            
                 except Exception as e:
                     print(e)
                     print('Because of the error auto structure solution could not be performed.')
@@ -182,21 +182,36 @@ def generate_xdsconv_input(path):
         # 创建No按钮
         no_button = tk.Button(window, text="No", command=lambda: no_action(window))
         no_button.grid(row=2, column=2)
+        
+        timeout_id = window.after(20000, lambda: yes_action(window))
+        window.protocol("WM_DELETE_WINDOW", lambda: [window.after_cancel(timeout_id), window.destroy()])
         window.mainloop()
 
     if Con_flag:
         i = len(lines) - i
         o = i - 10
-        k = o + 1
         point = 0.8
-        while i - 1 > k > o:
-            k += 1
-            print(f'cc1/2 = {lines[k].split()[10]}')
-            print(f'I/SIGMA = {lines[k].split()[8]}')
-            if '*' not in lines[k].split()[10] or float(lines[k].split()[8]) < 0.5:
-                point = float(lines[k-1].split()[0])
-                print(f'cut by {point}')
-                break
+        k = i
+        width = 12
+        print(f"| {'Resolution':<{width}} | {'Completeness':<{width}} | {'I/SIGMA':<{width}} | {'CC1/2':<{width}} |")
+        j = o 
+        while i - 1 > j : 
+            j += 1
+            print(f"| {lines[j].split()[0]:<{width}} | {lines[j].split()[4]:<{width}} | {lines[j].split()[8]:<{width}} | {lines[j].split()[10]:<{width}} |")
+        while k - 1 > o:  # o 是你需要定义的下限索引
+            k -= 1  # 递减索引
+            if '*' in lines[k].split()[10] and float(lines[k].split()[8]) > 0.3:
+                CC_value = lines[k].split()[10]
+                cleaned_value = ''.join(filter(lambda x: x.isdigit() or x == '.', CC_value))
+                CC_value = float(cleaned_value)
+                if CC_value > 50:
+                    point = float(lines[k].split()[0])
+                    ISIGMA = lines[k].split()[8]
+                    CC = lines[k].split()[10]
+                    comp = lines[k].split()[4]
+                    if point <0.8:
+                        point = 0.8
+                    break
         out = Path(path) / 'XDSCONV.INP'
         f = open(out, 'w')
         print(f"""
@@ -204,9 +219,13 @@ def generate_xdsconv_input(path):
             INCLUDE_RESOLUTION_RANGE= 20 {point} ! optional
             OUTPUT_FILE= shelx.hkl  SHELX    ! Warning: do _not_ name this file "temp.mtz" !
             FRIEDEL'S_LAW= FALSE             ! default is FRIEDEL'S_LAW=TRUE""", file=f)
-
         print(f'Wrote xdsconv input file at {path}.')
         print(f"Total data completeness = {fd[4]}%")
+        print(f'Resolution cut by {point}')
+        if point == 0.8:
+            print(f'Finally, Resolution = {point}, Completeness = {lines[i-1].split()[4]}, CC1/2 = {lines[i-1].split()[10]}, I/SIGMA = {lines[i-1].split()[8]}')
+        else :
+            print(f'Finally, Resolution = {point}, Completeness = {comp}, CC1/2 = {CC}, I/SIGMA = {ISIGMA}')
 
 
 def solve_structure_shelxt(path, ins_name='shelx'):
