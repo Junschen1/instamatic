@@ -80,7 +80,11 @@ def get_base_drc():
         logger.debug('Search directory:', search)
 
     if search.exists():
-        return search
+        settings = ConfigObject.from_file(Path(__file__).parent / _settings_yaml)
+        if "Win_XDS_PATH" in settings:
+            return search
+        else:
+            initialize_in_appData()
     else:
         initialize_in_appData()
 
