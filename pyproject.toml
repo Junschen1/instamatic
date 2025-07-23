@@ -118,6 +118,7 @@ publishing = [
 "instamatic.xdsserver" = "instamatic.server.xds_server:main"
 "instamatic.temserver_fei" = "instamatic.server.TEMServer_FEI:main"
 "instamatic.goniotoolserver" = "instamatic.server.goniotool_server:main"
+"instamatic.Winserver_auto" = "instamatic.server.win_ubuntu_serve:main"
 # setup
 "instamatic.autoconfig" = "instamatic.config.autoconfig:main"
 
