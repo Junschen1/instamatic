@@ -56,9 +56,20 @@ Check [pypoject.toml](pypoject.toml) for the full dependency list and versions.
 
 See [the documentation](https://instamatic.readthedocs.io) for how to set up and use Instamatic.
 ## Win_server update
-To use the indexing server: XDS (Ubuntu in Windows), please download the exe file from [10.5281/zenodo.16018017](https://doi.org/10.5281/zenodo.16018017). Then place the file in the same directory as instamatic.exe. For example, if instamatic.exe is located in D:\anaconda\Scripts, put the newly downloaded exe file in the same D:\anaconda\Scripts directory.​
+To use the indexing server: XDS (Ubuntu in Windows), first ensure that Windows Subsystem for Linux 2 (WSL2) is installed. If not, refer to the official installation guide:
+https://learn.microsoft.com/en-us/windows/wsl/install
 
-Next, you need to modify the configuration item in the settings.yaml file. This file is usually located in C:\Users****\AppData\Roaming\instamatic\config. However, if you can't find the file address, you can open instamatic and look for the config directory information that pops up. The path shown there will lead you to the location of the settings.yaml file. Once you've located the file, change the name of the configuration item following "Win_server_exe_auto" in the settings.yaml file to the name of the exe file you downloaded.
+Then ensure that XDS is installed in wsl2. If not, refer to the official installation guide:
+https://wiki.uni-konstanz.de/xds/index.php/Installation
+Please follow the linux guide and install the XDS package in wsl2.
+
+Finally ensure that Shelxt is installed in wsl2. If not, refer to the official installation guide:
+https://shelx.uni-goettingen.de/
+
+Once all dependencies are downloaded, please download the exe file from [10.5281/zenodo.16018017](https://doi.org/10.5281/zenodo.16018017). Then place the file in the same directory as instamatic.exe. For example, if instamatic.exe is located in your_anaconda_directory\envs\instamatic\Scripts, put the newly downloaded exe file in the same your_anaconda_directory\envs\instamatic\Scripts directory.​
+Next, you need to modify the configuration item in the settings.yaml file. This file is usually located in C:\Users****\AppData\Roaming\instamatic\config. However, if you can't find the file address, you can open instamatic and look for the config directory information that pops up. The path shown there will lead you to the location of the settings.yaml file. Once you've located the file, change the name of the configuration item following "Win_XDS_PATH:" in the settings.yaml file to the directory where xds was installed.
+
+Finally, you can use the indexing server "XDS (Ubuntu in Windows)" in the advanced section of Instamatic. Note that the SMV file path sent to the autosolution server must not be located in your Ubuntu subsystem.
 ## Reference
 
 If you found `Instamatic` useful, please consider citing it or one of the references below.
