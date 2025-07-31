@@ -55,6 +55,7 @@ dependencies = [
     "typing_extensions >= 4.0.0",
     "virtualbox >= 2.0.0",
     "pyserialem >= 0.3.2",
+    "edtools >= 1.0.4",
     "diffpy.structure",
 ]
 
